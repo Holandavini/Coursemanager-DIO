@@ -1,4 +1,6 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
 import { Course } from './course'
 
 // Esse arquivo será injetado no course-list.component.ts
@@ -9,8 +11,30 @@ import { Course } from './course'
 
 export class CourseService {
 
-    retriveAll(): Course[] {
-        return COURSES;
+    private coursesUrl: string = 'http://localhost:3100/api/courses'
+
+    constructor(private httpClient: HttpClient) { }
+
+    retriveAll(): Observable<Course[]> {
+        return this.httpClient.get<Course[]>(this.coursesUrl);
+    }
+
+    // Metedo para filtrar o curso por ID e poder usar no formulário
+    // Método irá receber um id e retornar um Curso
+    retriveById(id: number): Observable<Course>{
+        return this.httpClient.get<Course>(`${this.coursesUrl}/${id}`);
+    }
+
+    save(course: Course): Observable<Course> {
+        if(course.id){
+            return this.httpClient.put<Course>(`${this.coursesUrl}/${course.id}`, course)
+        } else {
+            return this.httpClient.post<Course>(`${this.coursesUrl}`, course)
+        }
+    }
+
+    deleteById(id: number): Observable<any>{
+        return this.httpClient.delete<any>(`${this.coursesUrl}/${id}`);
     }
 
 }
